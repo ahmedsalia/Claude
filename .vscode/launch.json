@@ -1,0 +1,66 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "📱 Start App 1 (Mobile) - Expo",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/app1-mobile",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["start"],
+      "console": "integratedTerminal",
+      "presentation": {
+        "hidden": false,
+        "group": "mobile",
+        "order": 1
+      }
+    },
+    {
+      "name": "🎥 Run App 2 (Video Analysis)",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/app2-video-analysis/main.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/app2-video-analysis",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/app2-video-analysis"
+      },
+      "presentation": {
+        "hidden": false,
+        "group": "desktop",
+        "order": 1
+      }
+    },
+    {
+      "name": "🎥 Debug App 2 (Video Analysis)",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/app2-video-analysis/main.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/app2-video-analysis",
+      "justMyCode": false,
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/app2-video-analysis"
+      },
+      "presentation": {
+        "hidden": false,
+        "group": "desktop",
+        "order": 2
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "🚀 Run Both Apps",
+      "configurations": [
+        "📱 Start App 1 (Mobile) - Expo",
+        "🎥 Run App 2 (Video Analysis)"
+      ],
+      "presentation": {
+        "hidden": false,
+        "group": "all",
+        "order": 1
+      }
+    }
+  ]
+}

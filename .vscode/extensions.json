@@ -1,0 +1,23 @@
+{
+  // Recommended extensions for this workspace
+  "recommendations": [
+    // JavaScript/TypeScript/React Native
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "msjsdiag.vscode-react-native",
+    "ms-vscode.vscode-typescript-next",
+
+    // Python
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+
+    // General productivity
+    "christian-kohler.path-intellisense",
+    "eamodio.gitlens",
+    "usernamehw.errorlens",
+
+    // Markdown
+    "yzhang.markdown-all-in-one"
+  ],
+  "unwantedRecommendations": []
+}
