@@ -70,11 +70,11 @@ export const SeasonStatsScreen: React.FC<SeasonStatsScreenProps> = ({ team, onBa
       // Add game stats to season totals
       const playerSeasonStats = aggregatedStats[playerId].stats;
       playerSeasonStats.fgm2 += stats.fgm2 || 0;
-      playerSeasonStats.fga2 += stats.fga2 || 0;
+      playerSeasonStats.fga2 += (stats.fga2 + stats.fgm2) || 0;
       playerSeasonStats.fgm3 += stats.fgm3 || 0;
-      playerSeasonStats.fga3 += stats.fga3 || 0;
+      playerSeasonStats.fga3 += (stats.fga3 + stats.fgm3) || 0;
       playerSeasonStats.ftm += stats.ftm || 0;
-      playerSeasonStats.fta += stats.fta || 0;
+      playerSeasonStats.fta += (stats.fta + stats.ftm) || 0;
       playerSeasonStats.oreb += stats.oreb || 0;
       playerSeasonStats.dreb += stats.dreb || 0;
       playerSeasonStats.ast += stats.ast || 0;

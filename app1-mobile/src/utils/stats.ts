@@ -34,9 +34,9 @@ export const calculateTeamPoints = (players: Player[]): number => {
   return players.reduce((total, player) => total + calculatePlayerPoints(player.stats), 0);
 };
 
-export const calculateFGPercentage = (made: number, attempted: number): string => {
-  if (attempted === 0) return '0.0';
-  return ((made / attempted) * 100).toFixed(1);
+export const calculateFGPercentage = (made: number, missed: number): string => {
+  if (made + missed === 0) return '0.0';
+  return ((made / (made+missed)) * 100).toFixed(1);
 };
 
 export const calculateTotalRebounds = (stats: PlayerStats): number => {
