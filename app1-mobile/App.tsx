@@ -7,9 +7,11 @@ import { GameScreen } from './src/screens/GameScreen';
 import { PlayerStatsScreen } from './src/screens/PlayerStatsScreen';
 import { GameHistoryScreen } from './src/screens/GameHistoryScreen';
 import { GameStatsDetailScreen } from './src/screens/GameStatsDetailScreen';
+import { SeasonStatsScreen } from './src/screens/SeasonStatsScreen';
 import { Team, CompletedGame } from './src/types';
+import { saveTeam, loadTeams } from './src/utils/storage';
 
-type Screen = 'home' | 'manage-team' | 'game' | 'player-stats' | 'game-history' | 'game-detail';
+type Screen = 'home' | 'manage-team' | 'game' | 'player-stats' | 'season-stats' | 'game-history' | 'game-detail';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
@@ -36,9 +38,30 @@ export default function App() {
     setCurrentScreen('game-history');
   };
 
+  const handleViewSeasonStats = (team: Team) => {
+    setSelectedTeam(team);
+    setCurrentScreen('season-stats');
+  };
+
   const handleViewGameDetail = (game: CompletedGame) => {
     setSelectedGame(game);
     setCurrentScreen('game-detail');
+  };
+
+  const handleDeleteGame = async (gameId: string) => {
+    if (!selectedTeam) return;
+
+    // Remove game from team's games array
+    const updatedTeam: Team = {
+      ...selectedTeam,
+      games: (selectedTeam.games || []).filter(g => g.id !== gameId),
+    };
+
+    // Save updated team
+    await saveTeam(updatedTeam);
+
+    // Update local state
+    setSelectedTeam(updatedTeam);
   };
 
   const handleEndGame = (updatedTeam: Team) => {
@@ -70,6 +93,7 @@ export default function App() {
           onStartGame={handleStartGame}
           onManageTeam={handleManageTeam}
           onViewStats={handleViewStats}
+          onViewSeasonStats={handleViewSeasonStats}
           onViewHistory={handleViewHistory}
         />
       )}
@@ -96,11 +120,19 @@ export default function App() {
         />
       )}
 
+      {currentScreen === 'season-stats' && selectedTeam && (
+        <SeasonStatsScreen
+          team={selectedTeam}
+          onBack={handleBackToHome}
+        />
+      )}
+
       {currentScreen === 'game-history' && selectedTeam && (
         <GameHistoryScreen
           team={selectedTeam}
           onBack={handleBackToHome}
           onViewGameStats={handleViewGameDetail}
+          onDeleteGame={handleDeleteGame}
         />
       )}
 

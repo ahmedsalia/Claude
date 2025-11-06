@@ -17,10 +17,11 @@ interface HomeScreenProps {
   onStartGame: (team: Team) => void;
   onManageTeam: (team: Team) => void;
   onViewStats: (team: Team) => void;
+  onViewSeasonStats: (team: Team) => void;
   onViewHistory: (team: Team) => void;
 }
 
-export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartGame, onManageTeam, onViewStats, onViewHistory }) => {
+export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartGame, onManageTeam, onViewStats, onViewSeasonStats, onViewHistory }) => {
   const [teams, setTeams] = useState<Team[]>([]);
   const [showNewTeamModal, setShowNewTeamModal] = useState(false);
   const [newTeamName, setNewTeamName] = useState('');
@@ -101,7 +102,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartGame, onManageTea
             style={[styles.button, styles.statsButton]}
             onPress={() => onViewStats(item)}
           >
-            <Text style={styles.buttonText}>View Stats</Text>
+            <Text style={styles.buttonText}>Current Stats</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.button, styles.seasonStatsButton]}
+            onPress={() => onViewSeasonStats(item)}
+          >
+            <Text style={styles.buttonText}>Season Stats</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.button, styles.historyButton]}
@@ -265,6 +272,9 @@ const styles = StyleSheet.create({
   },
   statsButton: {
     backgroundColor: '#2196F3',
+  },
+  seasonStatsButton: {
+    backgroundColor: '#00BCD4',
   },
   historyButton: {
     backgroundColor: '#9C27B0',

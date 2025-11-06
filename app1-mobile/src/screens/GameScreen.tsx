@@ -10,7 +10,7 @@ import {
 import { Team, Player, Game, StatType, CompletedGame } from '../types';
 import { PlayerCard } from '../components/PlayerCard';
 import { StatButton } from '../components/StatButton';
-import { statActions, calculateTeamPoints } from '../utils/stats';
+import { statActions, calculateTeamPoints, createEmptyStats } from '../utils/stats';
 import { saveCurrentGame, saveTeam } from '../utils/storage';
 import { showSimpleAlert, showConfirm } from '../utils/alert';
 
@@ -20,7 +20,17 @@ interface GameScreenProps {
 }
 
 export const GameScreen: React.FC<GameScreenProps> = ({ team: initialTeam, onEndGame }) => {
-  const [team, setTeam] = useState<Team>(initialTeam);
+  // Reset all player stats for new game (preserve team history)
+  const teamWithResetStats: Team = {
+    ...initialTeam,
+    players: initialTeam.players.map(p => ({
+      ...p,
+      stats: createEmptyStats(),
+      isOnCourt: false,
+    })),
+  };
+
+  const [team, setTeam] = useState<Team>(teamWithResetStats);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [game, setGame] = useState<Game>({
     id: Date.now().toString(),
@@ -170,10 +180,10 @@ export const GameScreen: React.FC<GameScreenProps> = ({ team: initialTeam, onEnd
           opponentScore: undefined,
         };
 
-        // Add game to team history
+        // Add game to team history (use initialTeam to get latest games array)
         const updatedTeam: Team = {
-          ...team,
-          games: [...(team.games || []), completedGame],
+          ...initialTeam,
+          games: [...(initialTeam.games || []), completedGame],
         };
 
         // Save team with game history

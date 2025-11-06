@@ -8,19 +8,33 @@ import {
 } from 'react-native';
 import { Team, CompletedGame } from '../types';
 import { calculatePlayerPoints } from '../utils/stats';
+import { showDestructiveConfirm } from '../utils/alert';
 
 interface GameHistoryScreenProps {
   team: Team;
   onBack: () => void;
   onViewGameStats: (game: CompletedGame) => void;
+  onDeleteGame: (gameId: string) => void;
 }
 
 export const GameHistoryScreen: React.FC<GameHistoryScreenProps> = ({
   team,
   onBack,
   onViewGameStats,
+  onDeleteGame,
 }) => {
   const games = team.games || [];
+
+  const handleDeleteGame = (game: CompletedGame, event: any) => {
+    event.stopPropagation(); // Prevent triggering the view game action
+
+    showDestructiveConfirm(
+      'Delete Game',
+      `Delete game from ${formatDate(game.date)}? This cannot be undone.`,
+      () => onDeleteGame(game.id),
+      'Delete'
+    );
+  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -42,43 +56,52 @@ export const GameHistoryScreen: React.FC<GameHistoryScreenProps> = ({
       .slice(0, 3);
 
     return (
-      <TouchableOpacity
-        key={game.id}
-        style={styles.gameCard}
-        onPress={() => onViewGameStats(game)}
-      >
-        <View style={styles.gameHeader}>
-          <Text style={styles.gameDate}>{formatDate(game.date)}</Text>
-          <View style={styles.scoreContainer}>
-            <Text style={styles.teamScore}>{game.teamScore}</Text>
-            <Text style={styles.scoreSeparator}>-</Text>
-            <Text style={styles.opponentScore}>
-              {game.opponentScore !== undefined ? game.opponentScore : '?'}
+      <View key={game.id} style={styles.gameCardContainer}>
+        <TouchableOpacity
+          style={styles.gameCard}
+          onPress={() => onViewGameStats(game)}
+        >
+          <View style={styles.gameHeader}>
+            <Text style={styles.gameDate}>{formatDate(game.date)}</Text>
+            <View style={styles.scoreContainer}>
+              <Text style={styles.teamScore}>{game.teamScore}</Text>
+              <Text style={styles.scoreSeparator}>-</Text>
+              <Text style={styles.opponentScore}>
+                {game.opponentScore !== undefined ? game.opponentScore : '?'}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.matchup}>
+            <Text style={styles.teamNameText}>{game.teamName}</Text>
+            <Text style={styles.vs}>vs</Text>
+            <Text style={styles.opponentText}>
+              {game.opponent || 'Opponent'}
             </Text>
           </View>
-        </View>
 
-        <View style={styles.matchup}>
-          <Text style={styles.teamNameText}>{game.teamName}</Text>
-          <Text style={styles.vs}>vs</Text>
-          <Text style={styles.opponentText}>
-            {game.opponent || 'Opponent'}
-          </Text>
-        </View>
+          {scorers.length > 0 && (
+            <View style={styles.topScorers}>
+              <Text style={styles.topScorersLabel}>Top Scorers:</Text>
+              {scorers.map((scorer, index) => (
+                <Text key={index} style={styles.scorerText}>
+                  {scorer.name}: {scorer.points} pts
+                </Text>
+              ))}
+            </View>
+          )}
 
-        {scorers.length > 0 && (
-          <View style={styles.topScorers}>
-            <Text style={styles.topScorersLabel}>Top Scorers:</Text>
-            {scorers.map((scorer, index) => (
-              <Text key={index} style={styles.scorerText}>
-                {scorer.name}: {scorer.points} pts
-              </Text>
-            ))}
+          <View style={styles.cardFooter}>
+            <Text style={styles.viewDetails}>Tap to view full stats →</Text>
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={(e) => handleDeleteGame(game, e)}
+            >
+              <Text style={styles.deleteButtonText}>Delete</Text>
+            </TouchableOpacity>
           </View>
-        )}
-
-        <Text style={styles.viewDetails}>Tap to view full stats →</Text>
-      </TouchableOpacity>
+        </TouchableOpacity>
+      </View>
     );
   };
 
@@ -163,11 +186,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
+  gameCardContainer: {
+    marginBottom: 12,
+  },
   gameCard: {
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 16,
-    marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -241,12 +266,28 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 2,
   },
+  cardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
+  },
   viewDetails: {
     fontSize: 12,
     color: '#1976D2',
-    textAlign: 'right',
-    marginTop: 8,
     fontWeight: '600',
+    flex: 1,
+  },
+  deleteButton: {
+    backgroundColor: '#F44336',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  deleteButtonText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
   emptyState: {
     flex: 1,
