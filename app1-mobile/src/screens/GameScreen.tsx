@@ -7,11 +7,11 @@ import {
   ScrollView,
   Modal,
 } from 'react-native';
-import { Team, Player, Game, StatType } from '../types';
+import { Team, Player, Game, StatType, CompletedGame } from '../types';
 import { PlayerCard } from '../components/PlayerCard';
 import { StatButton } from '../components/StatButton';
 import { statActions, calculateTeamPoints } from '../utils/stats';
-import { saveCurrentGame } from '../utils/storage';
+import { saveCurrentGame, saveTeam } from '../utils/storage';
 import { showSimpleAlert, showConfirm } from '../utils/alert';
 
 interface GameScreenProps {
@@ -145,7 +145,43 @@ export const GameScreen: React.FC<GameScreenProps> = ({ team: initialTeam, onEnd
     showConfirm(
       'End Game',
       'Are you sure you want to end this game?',
-      () => onEndGame(team),
+      async () => {
+        // Create completed game object
+        const playerStats: { [key: string]: any } = {};
+        const playerNames: { [key: string]: string } = {};
+        const playerJerseys: { [key: string]: string } = {};
+
+        team.players.forEach(player => {
+          playerStats[player.id] = { ...player.stats };
+          playerNames[player.id] = player.name;
+          playerJerseys[player.id] = player.jerseyNumber;
+        });
+
+        const completedGame: CompletedGame = {
+          id: game.id,
+          teamId: team.id,
+          teamName: team.name,
+          opponent: game.opponent || 'Opponent',
+          date: game.date,
+          playerStats,
+          playerNames,
+          playerJerseys,
+          teamScore: calculateTeamPoints(team.players),
+          opponentScore: undefined,
+        };
+
+        // Add game to team history
+        const updatedTeam: Team = {
+          ...team,
+          games: [...(team.games || []), completedGame],
+        };
+
+        // Save team with game history
+        await saveTeam(updatedTeam);
+
+        // Return to home
+        onEndGame(updatedTeam);
+      },
       undefined,
       'End Game',
       'Cancel'

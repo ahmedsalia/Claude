@@ -36,6 +36,7 @@ export interface Team {
   id: string;
   name: string;
   players: Player[];
+  games?: CompletedGame[];  // History of completed games
 }
 
 export interface Game {
@@ -49,6 +50,19 @@ export interface Game {
   quarter: number;
   gameTime: number;
   statsMode: 'normal' | 'advanced';
+}
+
+export interface CompletedGame {
+  id: string;
+  teamId: string;
+  teamName: string;
+  opponent: string;
+  date: string;
+  playerStats: { [playerId: string]: PlayerStats };  // Snapshot of all player stats
+  playerNames: { [playerId: string]: string };        // Player names at time of game
+  playerJerseys: { [playerId: string]: string };      // Jersey numbers at time of game
+  teamScore: number;
+  opponentScore?: number;
 }
 
 export type StatType =

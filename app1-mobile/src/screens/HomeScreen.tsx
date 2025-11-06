@@ -16,9 +16,11 @@ import { showSimpleAlert, showDestructiveConfirm } from '../utils/alert';
 interface HomeScreenProps {
   onStartGame: (team: Team) => void;
   onManageTeam: (team: Team) => void;
+  onViewStats: (team: Team) => void;
+  onViewHistory: (team: Team) => void;
 }
 
-export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartGame, onManageTeam }) => {
+export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartGame, onManageTeam, onViewStats, onViewHistory }) => {
   const [teams, setTeams] = useState<Team[]>([]);
   const [showNewTeamModal, setShowNewTeamModal] = useState(false);
   const [newTeamName, setNewTeamName] = useState('');
@@ -63,40 +65,60 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartGame, onManageTea
     );
   };
 
-  const renderTeamItem = ({ item }: { item: Team }) => (
-    <View style={styles.teamCard}>
-      <View style={styles.teamInfo}>
-        <Text style={styles.teamName}>{item.name}</Text>
-        <Text style={styles.playerCount}>{item.players.length} players</Text>
+  const renderTeamItem = ({ item }: { item: Team }) => {
+    const gamesPlayed = item.games?.length || 0;
+
+    return (
+      <View style={styles.teamCard}>
+        <View style={styles.teamInfo}>
+          <Text style={styles.teamName}>{item.name}</Text>
+          <Text style={styles.playerCount}>
+            {item.players.length} players • {gamesPlayed} games
+          </Text>
+        </View>
+        <View style={styles.teamActions}>
+          <TouchableOpacity
+            style={[styles.button, styles.manageButton]}
+            onPress={() => onManageTeam(item)}
+          >
+            <Text style={styles.buttonText}>Manage</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.button, styles.startButton]}
+            onPress={() => {
+              if (item.players.length < 5) {
+                showSimpleAlert('Not Enough Players', 'You need at least 5 players to start a game');
+                return;
+              }
+              onStartGame(item);
+            }}
+          >
+            <Text style={styles.buttonText}>Start Game</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.secondaryActions}>
+          <TouchableOpacity
+            style={[styles.button, styles.statsButton]}
+            onPress={() => onViewStats(item)}
+          >
+            <Text style={styles.buttonText}>View Stats</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.button, styles.historyButton]}
+            onPress={() => onViewHistory(item)}
+          >
+            <Text style={styles.buttonText}>History ({gamesPlayed})</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.button, styles.deleteButton]}
+            onPress={() => handleDeleteTeam(item)}
+          >
+            <Text style={styles.buttonText}>Delete</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-      <View style={styles.teamActions}>
-        <TouchableOpacity
-          style={[styles.button, styles.manageButton]}
-          onPress={() => onManageTeam(item)}
-        >
-          <Text style={styles.buttonText}>Manage</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.button, styles.startButton]}
-          onPress={() => {
-            if (item.players.length < 5) {
-              showSimpleAlert('Not Enough Players', 'You need at least 5 players to start a game');
-              return;
-            }
-            onStartGame(item);
-          }}
-        >
-          <Text style={styles.buttonText}>Start Game</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.button, styles.deleteButton]}
-          onPress={() => handleDeleteTeam(item)}
-        >
-          <Text style={styles.buttonText}>Delete</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -223,6 +245,11 @@ const styles = StyleSheet.create({
   teamActions: {
     flexDirection: 'row',
     gap: 8,
+    marginBottom: 8,
+  },
+  secondaryActions: {
+    flexDirection: 'row',
+    gap: 8,
   },
   button: {
     flex: 1,
@@ -235,6 +262,12 @@ const styles = StyleSheet.create({
   },
   startButton: {
     backgroundColor: '#4CAF50',
+  },
+  statsButton: {
+    backgroundColor: '#2196F3',
+  },
+  historyButton: {
+    backgroundColor: '#9C27B0',
   },
   deleteButton: {
     backgroundColor: '#F44336',
