@@ -7,11 +7,11 @@ import {
   FlatList,
   TextInput,
   Modal,
-  Alert,
 } from 'react-native';
 import { Team, Player } from '../types';
 import { loadTeams, saveTeam, deleteTeam } from '../utils/storage';
 import { createNewPlayer } from '../utils/stats';
+import { showSimpleAlert, showDestructiveConfirm } from '../utils/alert';
 
 interface HomeScreenProps {
   onStartGame: (team: Team) => void;
@@ -34,7 +34,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartGame, onManageTea
 
   const createTeam = async () => {
     if (!newTeamName.trim()) {
-      Alert.alert('Error', 'Please enter a team name');
+      showSimpleAlert('Error', 'Please enter a team name');
       return;
     }
 
@@ -52,20 +52,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartGame, onManageTea
   };
 
   const handleDeleteTeam = (team: Team) => {
-    Alert.alert(
+    showDestructiveConfirm(
       'Delete Team',
       `Are you sure you want to delete ${team.name}?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            await deleteTeam(team.id);
-            setTeams(teams.filter(t => t.id !== team.id));
-          },
-        },
-      ]
+      async () => {
+        await deleteTeam(team.id);
+        setTeams(teams.filter(t => t.id !== team.id));
+      },
+      'Delete'
     );
   };
 
@@ -86,7 +80,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartGame, onManageTea
           style={[styles.button, styles.startButton]}
           onPress={() => {
             if (item.players.length < 5) {
-              Alert.alert('Not Enough Players', 'You need at least 5 players to start a game');
+              showSimpleAlert('Not Enough Players', 'You need at least 5 players to start a game');
               return;
             }
             onStartGame(item);

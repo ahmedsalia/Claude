@@ -7,12 +7,12 @@ import {
   FlatList,
   TextInput,
   Modal,
-  Alert,
 } from 'react-native';
 import { Team, Player } from '../types';
 import { PlayerCard } from '../components/PlayerCard';
 import { saveTeam } from '../utils/storage';
 import { createNewPlayer } from '../utils/stats';
+import { showSimpleAlert, showDestructiveConfirm } from '../utils/alert';
 
 interface TeamManageScreenProps {
   team: Team;
@@ -41,13 +41,13 @@ export const TeamManageScreen: React.FC<TeamManageScreenProps> = ({
 
   const addPlayer = () => {
     if (!playerName.trim() || !playerNumber.trim()) {
-      Alert.alert('Error', 'Please enter player name and jersey number');
+      showSimpleAlert('Error', 'Please enter player name and jersey number');
       return;
     }
 
     // Check for duplicate jersey number
     if (team.players.some(p => p.jerseyNumber === playerNumber.trim())) {
-      Alert.alert('Error', 'Jersey number already exists');
+      showSimpleAlert('Error', 'Jersey number already exists');
       return;
     }
 
@@ -68,22 +68,16 @@ export const TeamManageScreen: React.FC<TeamManageScreenProps> = ({
   };
 
   const removePlayer = (playerId: string) => {
-    Alert.alert(
+    showDestructiveConfirm(
       'Remove Player',
       'Are you sure you want to remove this player?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Remove',
-          style: 'destructive',
-          onPress: () => {
-            setTeam({
-              ...team,
-              players: team.players.filter(p => p.id !== playerId),
-            });
-          },
-        },
-      ]
+      () => {
+        setTeam({
+          ...team,
+          players: team.players.filter(p => p.id !== playerId),
+        });
+      },
+      'Remove'
     );
   };
 

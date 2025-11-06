@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Alert,
   Modal,
 } from 'react-native';
 import { Team, Player, Game, StatType } from '../types';
@@ -13,6 +12,7 @@ import { PlayerCard } from '../components/PlayerCard';
 import { StatButton } from '../components/StatButton';
 import { statActions, calculateTeamPoints } from '../utils/stats';
 import { saveCurrentGame } from '../utils/storage';
+import { showSimpleAlert, showConfirm } from '../utils/alert';
 
 interface GameScreenProps {
   team: Team;
@@ -47,7 +47,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ team: initialTeam, onEnd
 
   const confirmLineup = () => {
     if (tempLineup.length !== 5) {
-      Alert.alert('Invalid Lineup', 'Please select exactly 5 players to start');
+      showSimpleAlert('Invalid Lineup', 'Please select exactly 5 players to start');
       return;
     }
 
@@ -72,7 +72,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ team: initialTeam, onEnd
       if (tempLineup.length < 5) {
         setTempLineup([...tempLineup, playerId]);
       } else {
-        Alert.alert('Lineup Full', 'You can only have 5 players on court');
+        showSimpleAlert('Lineup Full', 'You can only have 5 players on court');
       }
     }
   };
@@ -96,7 +96,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ team: initialTeam, onEnd
 
   const addStat = (statType: StatType) => {
     if (!selectedPlayer) {
-      Alert.alert('No Player Selected', 'Please select a player first');
+      showSimpleAlert('No Player Selected', 'Please select a player first');
       return;
     }
 
@@ -142,16 +142,13 @@ export const GameScreen: React.FC<GameScreenProps> = ({ team: initialTeam, onEnd
   };
 
   const handleEndGame = () => {
-    Alert.alert(
+    showConfirm(
       'End Game',
       'Are you sure you want to end this game?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'End Game',
-          onPress: () => onEndGame(team),
-        },
-      ]
+      () => onEndGame(team),
+      undefined,
+      'End Game',
+      'Cancel'
     );
   };
 
@@ -259,19 +256,16 @@ export const GameScreen: React.FC<GameScreenProps> = ({ team: initialTeam, onEnd
                   compact
                   onPress={() => {
                     if (selectedPlayer && selectedPlayer.isOnCourt) {
-                      Alert.alert(
+                      showConfirm(
                         'Substitute',
                         `Sub ${player.name} in for ${selectedPlayer.name}?`,
-                        [
-                          { text: 'Cancel', style: 'cancel' },
-                          {
-                            text: 'Substitute',
-                            onPress: () => {
-                              substitutePlayer(player.id, selectedPlayer.id);
-                              setSelectedPlayer(null);
-                            },
-                          },
-                        ]
+                        () => {
+                          substitutePlayer(player.id, selectedPlayer.id);
+                          setSelectedPlayer(null);
+                        },
+                        undefined,
+                        'Substitute',
+                        'Cancel'
                       );
                     }
                   }}
